@@ -1,0 +1,121 @@
+*{
+    border:none;
+    padding:0;
+    margin:0px; 
+    overflow:hidden;
+}
+
+.navbar{
+    width:100vw;
+    height: 10vh;
+    background-image: linear-gradient(90deg, #1605f8, #3dc6f3);
+}
+
+.nav-left{
+    display: flex;
+    align-items: center;
+    height:100%;
+    margin-left:1rem;
+}
+
+.nav-below{
+    display: flex;
+    /* flex-wrap: wrap; */
+    justify-content: center;
+    width:100vw;
+    height:90vh;
+    background-color: aliceblue;
+}
+.typewriter {
+    color:aliceblue;
+    font-size: 2rem;
+    font-weight: 700;
+    font-family: monospace; 
+    overflow: hidden;       
+    white-space: nowrap;    
+    width:0;
+    animation: typing 3s steps(30, end) infinite, blink 0.75s step-end infinite;
+  }
+
+  .start-block,.check-block{
+    background-image: linear-gradient(60deg, #1605f8, #3dc6f3);
+    width:40vw;
+    height:30vh;
+    border-radius: 20px;
+    margin:1rem;
+  }
+
+  .decision-button{
+    width:13vw;
+  }
+  .button-holder{
+    display: flex;
+    justify-content: space-between;
+    width:25vw;
+  }
+
+  .start-content,.check-content{
+    display: flex;
+    flex-direction: column;
+    width:100%;
+    margin-top:1rem;
+    align-items: center;
+  }
+
+  input{
+    width:80%;
+    height:4vh;
+    background-color: #d3f2fc;
+    border-radius: 5px;
+    border:none;
+    padding-left:0.5rem;
+  }
+
+  button{
+    width:10vw;
+    margin-top: 1rem;
+    height:2.5vh;
+    font-weight:bold;
+  }
+  .heading{
+    color:aliceblue;
+    font-size: 2rem;
+    display: flex;
+    justify-content: center;
+    margin-top:0.5rem;
+    font-weight: 700;
+  }
+  
+  .notification {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background-color: #4caf50; /* Green background for success */
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 1rem;
+    z-index: 1000;
+}
+
+.notification.success {
+    background-color: green;
+}
+
+.notification.error {
+    background-color: red;
+}
+
+  @keyframes typing {
+    from { width: 0; }
+    to { width: 40%; }
+  }
+  
+  @media (max-width:1024px){
+    .button-holder{
+      width:40vw;
+    }
+    .decision-button{
+      width:25vw;
+    }
+  }
