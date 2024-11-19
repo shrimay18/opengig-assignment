@@ -5,6 +5,8 @@ const Email = require('./models/Email');
 const app = express();
 const PORT = 5000;
 
+const emailLogs = {};
+
 const cors = require('cors');
 app.use(cors());
 app.use(express.json());
@@ -18,41 +20,45 @@ mongoose.connect('mongodb+srv://shrimaynotion18:notion@cluster0.b1uui.mongodb.ne
     console.log('MongoDb connection error:', err);
 });
 
+
+const addLogMessage = (email, message) => {
+    if (!emailLogs[email]) {
+        emailLogs[email] = [];
+    }
+    emailLogs[email].push({ message, timestamp: new Date() });
+};
+
 app.post('/api/emails', async (req, res) => {
     const { email, status } = req.body;
 
     try {
         const newEmail = new Email({ email, status });
         await newEmail.save();
+        addLogMessage(email, 'Workflow started');
         res.status(201).json({ message: 'Workflow started', newEmail });
 
-        // Start the first delayed check after 45 seconds
         setTimeout(async () => {
             const currentEmail = await Email.findOne({ email });
             if (currentEmail && currentEmail.status === 'pending') {
-                console.log(`45-second check: ${email} has not accepted yet.`);
+                addLogMessage(email, '45-second check: email not accepted yet.');
 
-                // Re-check after an additional 30 seconds
                 setTimeout(async () => {
                     const updatedEmail = await Email.findOne({ email });
                     if (updatedEmail && updatedEmail.status === 'pending') {
-                        console.log(`30-second follow-up: ${email} has still not accepted. Removing...`);
+                        addLogMessage(email, '30-second follow-up: email still not accepted. Removing...');
                         await Email.deleteOne({ email });
-                        console.log(`Removed ${email} from the database.`);
+                        addLogMessage(email, 'Email removed from the database.');
+                    } else {
+                        addLogMessage(email, 'Email accepted. Workflow complete.');
                     }
-                    else{
-                        console.log('Thank you for the purchase');
-                    }
-                }, 30000); // 30 seconds
+                }, 30000);
+            } else {
+                addLogMessage(email, 'Email accepted. Workflow complete.');
             }
-            else{
-                console.log('Thank you for the purchase');
-            }
-        }, 45000); // 45 seconds
+        }, 45000);
 
     } catch (error) {
         console.error('Error saving email:', error);
-
         if (error.code === 11000) {
             res.status(400).json({ message: 'Email already exists. Please check the status.' });
         } else {
@@ -61,7 +67,6 @@ app.post('/api/emails', async (req, res) => {
     }
 });
 
-// Endpoint to mark the workflow as accepted (status = "completed")
 app.put('/api/emails/:email/accept', async (req, res) => {
     const { email } = req.params;
 
@@ -83,7 +88,6 @@ app.put('/api/emails/:email/accept', async (req, res) => {
     }
 });
 
-// Endpoint to mark the workflow as rejected
 app.put('/api/emails/:email/reject', async (req, res) => {
     const { email } = req.params;
 
@@ -105,6 +109,16 @@ app.put('/api/emails/:email/reject', async (req, res) => {
     }
 });
 
+app.get('/api/logs/:email', (req, res) => {
+    const { email } = req.params;
+    const logs = emailLogs[email];
+    if (logs) {
+        res.status(200).json({ logs });
+    } else {
+        res.status(404).json({ message: 'No logs found for the specified email.' });
+    }
+});
+
 app.get('/api/emails/status/:email', async (req, res) => {
     const { email } = req.params;
 
@@ -114,15 +128,13 @@ app.get('/api/emails/status/:email', async (req, res) => {
         if (emailRecord) {
             res.status(200).json({ status: emailRecord.status });
         } else {
-            res.status(404).json({ message: 'Email not found in the database' });
+            res.status(404).json({ message: 'Email not found' });
         }
     } catch (error) {
-        console.error('Error checking email status:', error);
-        res.status(500).json({ message: 'Error checking email status' });
+        console.error('Error fetching email status:', error);
+        res.status(500).json({ message: 'Error fetching email status' });
     }
 });
-
-
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

@@ -8,14 +8,13 @@ function DecisionPage() {
     const [message, setMessage] = useState('');
 
     useEffect(() => {
-        // Set a timer for 45 seconds to prompt the user again
         const timer = setTimeout(() => {
             if (status === 'pending') {
                 setMessage('Please accept or reject the offer.');
             }
         }, 45000);
 
-        return () => clearTimeout(timer); // Cleanup timer on unmount
+        return () => clearTimeout(timer); 
     }, [status]);
 
     const handleAccept = async () => {
@@ -30,7 +29,7 @@ function DecisionPage() {
             if (response.ok) {
                 setStatus('completed');
                 setMessage('Offer accepted successfully!');
-                navigate('/'); // Redirect back to homepage after accept
+                navigate('/'); 
             } else {
                 setMessage('Failed to accept the offer.');
             }
@@ -52,7 +51,7 @@ function DecisionPage() {
             if (response.ok) {
                 setStatus('rejected');
                 setMessage('Offer rejected successfully.');
-                navigate('/'); // Redirect back to homepage after reject
+                navigate('/'); 
             } else {
                 setMessage('Failed to reject the offer.');
             }
